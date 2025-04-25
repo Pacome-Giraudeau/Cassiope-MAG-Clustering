@@ -219,7 +219,6 @@ def read_contig_kmere():
                 if line.split()[0] != "contig":
                     contig_name = line.split()[0]
                     liste_contig.append(contig_name)  # Ajout du contig à la liste
-                    print(line.split(), "\n")
                     contigs_kmere[contig_name] = np.array(line.split()[1:]).astype(int)  # Stockage des kmères sous forme d'entiers
     # print(liste_contig[:5])  # Affiche les 5 premiers contigs
     return contigs_kmere, liste_contig
