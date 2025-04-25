@@ -1,0 +1,8 @@
+clusters.txt
+kmer_contigs.clean_short.txt
+kmer_contigs.clean_very_short.txt
+*clusters.lp
+*contigs.lp
+*distances.lp
+*genes.lp
+*taxonomy.lp
