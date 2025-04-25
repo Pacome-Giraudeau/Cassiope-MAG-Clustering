@@ -9,7 +9,7 @@
 #SBATCH --job-name=clingo_1 # nom du job
 #SBATCH --mail-user=pgiraude@genoscope.cns.fr # email utilisateur: à remplir
 #SBATCH --mail-type=BEGIN,FAIL,END #quand envoyer un mail (BEGIN, FAIL, END, ALL)
-#SBATCH -D /env/export/bigtmp2/cassiopee/ # chemin du répertoire de travail
+#SBATCH -D /env/export/bigtmp2/cassiopee/Cassiope-MAG-Clustering # chemin du répertoire de travail
 #SBATCH --error=log/%x-%J-%u.err #chemin du fichier où écrire l'erreur standard
 #SBATCH --output=log/%x-%J-%u.out #chemin du fichier où écrire la sortie standard (facultatif, surtout si vous redirigez vous-même la sortie de clingo dans un fichier de sortie)
 
@@ -18,6 +18,6 @@ module load conda #charge le module conda
 conda activate clingo #active l'environnement clingo (modifiez pour le nom de votre environnement le cas échéant)
 
 # commande clingo ou python: a vous de compléter !
-python3 main_to_lp.py
+python3 main_to_lp.py ./log/log
 
 # clingo <options> <predicate_files> > <output_file>
