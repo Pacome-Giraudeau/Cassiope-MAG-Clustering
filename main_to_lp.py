@@ -9,7 +9,7 @@ import random
 ###### DESCRPITION DES CHEMINS VERS LES DIFF FICHIERS
 
 nb_clusters = 10
-nb_contigs_to_classify = 100
+nb_contigs_to_classify = 300
 
 
 folder = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -613,15 +613,15 @@ def __main__():
     
     file_output = init_clingo()
 
-    # print(f"Loading {file_output}...")
-    # ctl.load(file_output)
-    # print("Loading terminé !")
-    # print("Grounding...")
-    # ctl.ground([("base", [])]) 
-    # print("Grounding de clingo terminée !")
-    # print("Resolution...")
-    # ctl.solve(on_model=on_model)
-    # print("Résolution de clingo terminée !")
+    print(f"Loading {file_output}...")
+    ctl.load(file_output)
+    print("Loading terminé !")
+    print("Grounding...")
+    ctl.ground([("base", [])]) 
+    print("Grounding de clingo terminée !")
+    print("Resolution...")
+    ctl.solve(on_model=on_model)
+    print("Résolution de clingo terminée !")
     
     
     return
