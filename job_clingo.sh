@@ -7,7 +7,7 @@
 #SBATCH -p normal # nom de la partition ("normal", "xlarge" ou "xxlarge")
 #SBATCH --qos=default # nom de la queue de travail. pour normal, choisir default ou long, pour (x)xlarge, (x)xlarge ou (x)xlarge_month -sans parenthèse...)
 #SBATCH --job-name=clingo_1 # nom du job
-#SBATCH --mail-user= 	pgiraude@genoscope.cns.fr # email utilisateur: à remplir
+#SBATCH --mail-user=pgiraude@genoscope.cns.fr # email utilisateur: à remplir
 #SBATCH --mail-type=BEGIN,FAIL,END #quand envoyer un mail (BEGIN, FAIL, END, ALL)
 #SBATCH -D /env/export/bigtmp2/cassiopee/ # chemin du répertoire de travail
 #SBATCH --error=log/%x-%J-%u.err #chemin du fichier où écrire l'erreur standard
