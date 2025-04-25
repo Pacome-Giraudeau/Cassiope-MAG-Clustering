@@ -8,8 +8,8 @@ import random
 
 ###### DESCRPITION DES CHEMINS VERS LES DIFF FICHIERS
 
-nb_clusters = 7
-nb_contigs_to_classify = 68
+nb_clusters = 10
+nb_contigs_to_classify = 12755
 
 folder = os.path.dirname(os.path.abspath(sys.argv[0]))
 folder_data = "data"
@@ -37,19 +37,34 @@ def copy_random_lines_with_scg(folder_data_working, nb_contigs, scg_file="contig
     # Lire les deux fichiers et créer des dictionnaires {contig_name: line}
     def read_file_to_dict(file_path, separator):
         with open(file_path, 'r') as f:
-            lines = f.readlines()
-        return {line.strip().split(separator)[0]: line for line in lines}
+            lines = f.readlines()[1:]
+        return {line.split(separator)[0]: line for line in lines}
 
-    contig_to_line1 = read_file_to_dict(file1, "\t")
-    contig_to_line2 = read_file_to_dict(file2, "_split_00001") 
+        
+    def read_file_to_dict_coverage(file_path, separator):
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+        return {(line.split(separator)[0], line.split(separator)[1]): line for line in lines}
+
+    contig_to_line1 = read_file_to_dict(file1, "	")
+    contig_to_line2 = read_file_to_dict_coverage(file2, "	") 
 
     # Vérifier que les contigs sont cohérents entre les deux fichiers
-    contigs_common = set(contig_to_line1.keys()) & set(contig_to_line2.keys())
+    contigs_common = set(contig_to_line1.keys())
 
     # Extraire les lignes SCG
     scg_contigs_present = scg_contigs & contigs_common
     scg_lines1 = [contig_to_line1[contig] for contig in scg_contigs_present]
-    scg_lines2 = [contig_to_line2[contig] for contig in scg_contigs_present]
+
+    scg_lines2 = [contig_to_line2[contig+"_split_00001", echantillon] for contig in scg_contigs_present for echantillon in [
+        "S_125SUR1QQSS11",
+        "S_133DCM1SSUU11",
+        "S_135SUR1MMQQ11",
+        "S_145SUR1SSUU11", 
+        "S_152SUR1SSUU11",
+        "S_66SUR1SSUU11",
+        "S_81SUR01SSUU11"
+    ]]
 
     # Contigs restants (non-SCG)
     remaining_contigs = list(contigs_common - scg_contigs_present)
@@ -65,7 +80,15 @@ def copy_random_lines_with_scg(folder_data_working, nb_contigs, scg_file="contig
 
     # Construire les lignes finales
     final_lines1 = scg_lines1 + [contig_to_line1[contig] for contig in random_selected_contigs]
-    final_lines2 = scg_lines2 + [contig_to_line2[contig] for contig in random_selected_contigs]
+    final_lines2 = scg_lines2 + [contig_to_line2[contig+"_split_00001", echantillon] for contig in random_selected_contigs for echantillon in [
+        "S_125SUR1QQSS11",
+        "S_133DCM1SSUU11",
+        "S_135SUR1MMQQ11",
+        "S_145SUR1SSUU11", 
+        "S_152SUR1SSUU11",
+        "S_66SUR1SSUU11",
+        "S_81SUR01SSUU11"
+    ]]
 
     # Écrire les fichiers de sortie
     with open(output1, 'w') as f_out1:
@@ -196,6 +219,7 @@ def read_contig_kmere():
                 if line.split()[0] != "contig":
                     contig_name = line.split()[0]
                     liste_contig.append(contig_name)  # Ajout du contig à la liste
+                    print(line.split(), "\n")
                     contigs_kmere[contig_name] = np.array(line.split()[1:]).astype(int)  # Stockage des kmères sous forme d'entiers
     # print(liste_contig[:5])  # Affiche les 5 premiers contigs
     return contigs_kmere, liste_contig
@@ -449,7 +473,7 @@ def add_clingo_clusters():
     Output : Règles Clingo cluster(1)."""
 
 
-    file_path = os.path.join(folder_data_working, "programme_lp", str(nb_contigs) + "_clusters.lp")
+    file_path = os.path.join(folder_data_working, "programme_lp", "clusters.lp")
 
     print("Création des clusters...")
     with open(file_path, "w") as f:
