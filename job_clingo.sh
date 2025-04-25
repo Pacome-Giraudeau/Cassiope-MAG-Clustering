@@ -18,6 +18,6 @@ module load conda #charge le module conda
 conda activate clingo #active l'environnement clingo (modifiez pour le nom de votre environnement le cas échéant)
 
 # commande clingo ou python: a vous de compléter !
-python3 main_to_lp.py
+python3 main_to_lp.py --error
 
 # clingo <options> <predicate_files> > <output_file>
