@@ -1,0 +1,19 @@
+Priorités : 
+
+* Script python pour passer les documents en prédicats pour ASP
+    - contigs
+    - données taxonomiques
+    - marqueurs
+
+* Programme ASP pour faire un clustering en 
+    - maximisant la complétion, 
+    - minimisant la redondance
+    - minimisant l'hétérogénéité
+
+
+
+
+Plus tard :
+- calculer les distances
+- optimiser le clustering selon les distances entre contigs
+
