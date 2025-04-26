@@ -1,2 +1,0 @@
-/var/spool/slurm/d/job7123682/slurm_script : ligne 21 : 257081 Processus arrêté      python3 main_to_lp.py
-slurmstepd: error: Detected 1 oom-kill event(s) in StepId=7123682.batch cgroup. Some of your processes may have been killed by the cgroup out-of-memory handler.
