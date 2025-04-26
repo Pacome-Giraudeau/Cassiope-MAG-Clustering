@@ -8,3 +8,6 @@ kmer_contigs.clean_very_short.txt
 *taxonomy.lp
 first_set
 output*
+output.lp
+log
+
