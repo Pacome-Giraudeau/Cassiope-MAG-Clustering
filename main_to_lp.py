@@ -9,8 +9,7 @@ import random
 ###### DESCRPITION DES CHEMINS VERS LES DIFF FICHIERS
 
 nb_clusters = 10
-nb_contigs_to_classify =3000
-
+nb_contigs_to_classify=3000
 
 folder = os.path.dirname(os.path.abspath(sys.argv[0]))
 folder_data = "data"
