@@ -320,7 +320,7 @@ def calculate_distance_contigs():
 
     # Identification des contigs en commun
     contigs_en_commun = list(set(liste_coverage) & set(liste_kmere))
-    print("Liste des contigs en commun :", contigs_en_commun)
+    # print("Liste des contigs en commun :", contigs_en_commun)
     for contig in contigs_en_commun :
         contigs.append(contig)
     n = nb_contigs
