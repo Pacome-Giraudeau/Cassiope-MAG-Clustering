@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/env/export/bigtmp2/cassiope/Cassiope-MAG-Clustering/main_to_lp.py", line 630, in <module>
+    __main__()
+    ~~~~~~~~^^
+  File "/env/export/bigtmp2/cassiope/Cassiope-MAG-Clustering/main_to_lp.py", line 614, in __main__
+    file_output = init_clingo()
+  File "/env/export/bigtmp2/cassiope/Cassiope-MAG-Clustering/main_to_lp.py", line 549, in init_clingo
+    file_distances = add_clingo_distance()
+  File "/env/export/bigtmp2/cassiope/Cassiope-MAG-Clustering/main_to_lp.py", line 430, in add_clingo_distance
+    contigs_dist, contigs = calculate_distance_contigs()
+                            ~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/env/export/bigtmp2/cassiope/Cassiope-MAG-Clustering/main_to_lp.py", line 337, in calculate_distance_contigs
+    c1 = contigs[i]
+         ~~~~~~~^^^
+IndexError: list index out of range
