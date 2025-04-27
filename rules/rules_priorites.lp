@@ -15,7 +15,7 @@ same_taxo(C1, C2, Rank) :- assigned(C1, Cluster), assigned(C2, Cluster),
     C1 != C2, T1 != T2, Rank <= 3.
 
 % Maximiser la cohérence taxonomique dans les clusters
-#maximize { Rank : same_taxo(C1, C2, Rank) }.
+#maximize { Rank @ 2 : same_taxo(C1, C2, Rank) }.
 
 
 distance_clusters(Cluster1, Cluster2, Dc) :- 
@@ -37,10 +37,10 @@ min_distance(Cluster1, Cluster2, Dc1) :-
     
 
 % Maximisation de la somme des distances entre BINS
-#maximize { Dc : min_distance(Cluster1, Cluster2, Dc)}.
+#maximize { Dc @ 1 : min_distance(Cluster1, Cluster2, Dc)}.
 
 % Minimisation somme des distances intra
-#minimize { D : 
+#minimize { D @ 1 : 
     assigned(C1, Cluster), 
     assigned(C2, Cluster), 
     distance(C1, C2, D), 
