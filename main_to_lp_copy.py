@@ -9,8 +9,8 @@ import glob
 
 ###### DESCRPITION DES CHEMINS VERS LES DIFF FICHIERS
 
-nb_clusters = 2
-nb_contigs_to_classify=80
+nb_clusters =10
+nb_contigs_to_classify=1000
 
 folder = os.path.dirname(os.path.abspath(sys.argv[0]))
 folder_data = "data"
@@ -613,7 +613,7 @@ def __main__():
         
         rules_name = os.path.splitext(os.path.basename(rules_path))[0] 
         # Create a Clingo control object
-        ctl = clingo.Control(["0", "--opt-mode=optN", "--parallel-mode=12"])
+        ctl = clingo.Control(["0", "--opt-mode=optN", "--parallel-mode=36"])
 
         print(f"\n==========\nTraitement pour {rules_name}\n==========\n")
 
