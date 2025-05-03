@@ -1,4 +1,5 @@
 Trichodesmium_miru_01_000000021247	bin_8
+Trichodesmium_miru_01_000000025236	bin_8
 Trichodesmium_miru_01_000000010106	bin_8
 Trichodesmium_miru_01_000000015307	bin_8
 Trichodesmium_miru_01_000000080344	bin_9
@@ -880,7 +881,6 @@ Trichodesmium_miru_01_000000069784	bin_9
 Trichodesmium_miru_01_000000102208	bin_9
 Trichodesmium_miru_01_000000078717	bin_9
 Trichodesmium_miru_01_000000098425	bin_9
-Trichodesmium_miru_01_000000025236	bin_9
 Trichodesmium_miru_01_000000073114	bin_9
 Trichodesmium_miru_01_000000032474	bin_9
 Trichodesmium_miru_01_000000039255	bin_9
