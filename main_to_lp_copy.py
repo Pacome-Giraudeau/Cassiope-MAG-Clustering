@@ -10,7 +10,7 @@ import glob
 ###### DESCRPITION DES CHEMINS VERS LES DIFF FICHIERS
 
 nb_clusters =10
-nb_contigs_to_classify=1000
+nb_contigs_to_classify=80
 
 folder = os.path.dirname(os.path.abspath(sys.argv[0]))
 folder_data = "data"
@@ -313,7 +313,7 @@ def calculate_distance_contigs():
     Input : contigs_coverage, contigs_kmere
     Output : Matrice des distances, Dictionnaire {contig : index}"""
 
-    ponderation = 1
+    ponderation = 100
     # Chargement des données
     contigs_coverage, liste_coverage = read_contig_coverage()
     contigs_kmere, liste_kmere = read_contig_kmere()
@@ -509,6 +509,7 @@ def on_model(model, rules_name):
     count_assigned_atoms = len(assigned_atoms)
     cluster_count_atoms = []
     clusters = [int(atom.split(',')[-1][:-1]) for atom in assigned_atoms]
+    
     for cluster in clusters:
         if cluster not in cluster_count_atoms:
             cluster_count_atoms.append(cluster)
@@ -613,7 +614,7 @@ def __main__():
         
         rules_name = os.path.splitext(os.path.basename(rules_path))[0] 
         # Create a Clingo control object
-        ctl = clingo.Control(["0", "--opt-mode=optN", "--parallel-mode=36"])
+        ctl = clingo.Control(["0", "--opt-mode=optN", "--parallel-mode=10"])
 
         print(f"\n==========\nTraitement pour {rules_name}\n==========\n")
 
