@@ -331,25 +331,33 @@ def calculate_distance_contigs():
     # Création d'un dictionnaire pour indexer les contigs
     contig_to_index = {contig: idx for idx, contig in enumerate(contigs)}
 
+    # Préparation du fichier des distances
+    output_path = os.path.join(folder_data_working, "distance_data_analyse.txt")
+
 
     # Calcul de la matrice des distances
-    for i in range(n):
-        c1 = contigs[i]
-        print(i + 1, "/", n)
+    with open(output_path, "w") as f:
+        # Calcul de la matrice des distances et écriture dans le fichier
+        for i in range(n):
+            c1 = contigs[i]
+            print(f"{i + 1} / {n}")
+            coverage_c1 = contigs_coverage[liste_coverage.index(c1)]
+            kmere_c1 = contigs_kmere[c1]
 
-        # Construction du vecteur combiné pour c1
-        coverage_c1 = contigs_coverage[liste_coverage.index(c1)]
-        kmere_c1 = contigs_kmere[c1]
-        for j in range(i, n):  # Évite les doublons (distance symétrique)
-            c2 = contigs[j]
-            coverage_c2 = contigs_coverage[liste_coverage.index(c2)]
-            kmere_c2 = contigs_kmere[c2]
+            for j in range(i, n):  # Évite les doublons (distance symétrique)
+                c2 = contigs[j]
+                coverage_c2 = contigs_coverage[liste_coverage.index(c2)]
+                kmere_c2 = contigs_kmere[c2]
 
-            # Calcul de la distance euclidienne
-            distance_coverage = euclidean(coverage_c1, coverage_c2)
-            distance_kmere = euclidean(kmere_c1, kmere_c2)
-            distance= (distance_coverage*ponderation + distance_kmere)/(ponderation+1)
-            contigs_dist[i, j] = distance
+                # Calcul de la distance euclidienne pondérée
+                distance_coverage = euclidean(coverage_c1, coverage_c2)
+                distance_kmere = euclidean(kmere_c1, kmere_c2)
+                distance = (distance_coverage * ponderation + distance_kmere) / (ponderation + 1)
+                contigs_dist[i, j] = distance
+
+                # Écriture dans le fichier si i != j
+                if i != j:
+                    f.write(f"{c1}\t{c2}\t{distance:.6f}\n")
             
     # print("Matrice des distances (extrait 5x5):")
     # print(contigs_dist[:5, :5])
