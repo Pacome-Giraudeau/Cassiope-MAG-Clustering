@@ -9,8 +9,8 @@ import glob
 
 ###### DESCRPITION DES CHEMINS VERS LES DIFF FICHIERS
 
-nb_clusters =10
-nb_contigs_to_classify=1000
+nb_clusters =2
+nb_contigs_to_classify=100
 
 folder = os.path.dirname(os.path.abspath(sys.argv[0]))
 folder_data = "data"
@@ -382,8 +382,7 @@ def get_nb_contigs():
         with open(kmere_file, "r", encoding="utf-8") as file:
             for line in file:
                nb+=1 
-    return nb - 1 # -1 car la première ligne, c'est "contig AAAA AACT ..."
-
+    return nb 
 def get_contigs():
     """
     renvoie la liste des contigs
@@ -434,31 +433,29 @@ def add_clingo_restriction_tokens():
     
     print("Création des restrictions via tokens...")
 
-    coef = 0.5
     
     file_path = os.path.join(folder_data_working, "programme_lp", str(nb_contigs) + "_restrictions_via_tokens.lp")
-    # if not os.path.exists(file_path):
-    contigs_dist, contigs = calculate_distance_contigs()
-    
-    with open(file_path, "w") as f:
-        for c1 in range(nb_contigs):
-            print(f"[Ajout des distances restrictions [{c1} / {nb_contigs-1}]]")
+    if not os.path.exists(file_path):
+        contigs_dist, contigs = calculate_distance_contigs()
+        
+        with open(file_path, "w") as f:
+            for c1 in range(nb_contigs):
+                print(f"[Ajout des distances restrictions [{c1} / {nb_contigs-1}]]")
 
-            # Calcule toutes les distances de c1 à chaque c2
-            distances = []
-            for c2 in contigs_tokens.keys():
-                distance = get_distance_contigs(c1, contigs.index(c2), contigs_dist)
-                distances.append((distance, c2))
-
-            # Trie les c2 par distance croissante
-            distances.sort()
-
-            # Prend la moitié des c2 les plus proches
-            top_half = distances[:len(distances) // 2]
-
-            # Écrit la contrainte seulement pour cette moitié
-            for _, c2 in top_half:
-                f.write(f':- assigned("{contigs[c1]}", C), assigned("{c2}", C), cluster(C).\n')
+                # Calcule toutes les distances de c1 à chaque c2
+                distances = []
+                for c2 in contigs_tokens.keys():
+                    distance = get_distance_contigs(c1, contigs.index(c2), contigs_dist)
+                    distances.append((distance, c2))
+                
+                # Trie les c2 par distance croissante
+                distances.sort()
+                # Prend la moitié des c2 les plus proches
+                top_half = distances[:len(distances) // 2]
+                
+                # Écrit la contrainte seulement pour cette moitié
+                for _, c2 in top_half:
+                    f.write(f':- assigned("{contigs[c1]}", C), assigned("{c2}", C), cluster(C).\n')
 
     print("Création des restrictions effectuées !\n")
     
@@ -479,9 +476,9 @@ def add_clingo_distance():
         contigs_dist, contigs = calculate_distance_contigs()
         
         with open(file_path, "w") as f:
-            for c1 in range(nb_contigs):
+            for c1 in range(0, nb_contigs):
                 
-                print("[Ajout des distances entre contigs [", c1, "/", nb_contigs-1,"]")
+                print("[Ajout des distances entre contigs [", c1, "/", nb_contigs,"]")
                 for c2 in range(nb_contigs):
                     f.write(f'distance("{contigs[c1]}","{contigs[c2]}", {get_distance_contigs(c1, c2, contigs_dist)}).\n')
     
