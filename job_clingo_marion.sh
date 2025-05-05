@@ -6,7 +6,7 @@
 #SBATCH --mem=300G # mémoire demandée (default: M)
 #SBATCH -p normal # nom de la partition ("normal", "xlarge" ou "xxlarge")
 #SBATCH --qos=default # nom de la queue de travail. pour normal, choisir default ou long, pour (x)xlarge, (x)xlarge ou (x)xlarge_month -sans parenthèse...)
-#SBATCH --job-name=clingo_batterie_tests # nom du job
+#SBATCH --job-name=clingo_test # nom du job
 #SBATCH --mail-user=mlhermit@genoscope.cns.fr # email utilisateur: à remplir
 #SBATCH --mail-type=BEGIN,FAIL,END #quand envoyer un mail (BEGIN, FAIL, END, ALL)
 #SBATCH --error=log/%x-%J-%u.err #chemin du fichier où écrire l'erreur standard
