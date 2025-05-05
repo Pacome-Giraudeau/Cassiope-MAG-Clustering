@@ -313,7 +313,7 @@ def calculate_distance_contigs():
     Input : contigs_coverage, contigs_kmere
     Output : Matrice des distances, Dictionnaire {contig : index}"""
 
-    ponderation = 1
+    ponderation = 300
     # Chargement des données
     contigs_coverage, liste_coverage = read_contig_coverage()
     contigs_kmere, liste_kmere = read_contig_kmere()
@@ -363,6 +363,8 @@ def calculate_distance_contigs():
     # print(contigs_dist[:5, :5])
 
     return contigs_dist, contigs
+
+
 
 def get_distance_contigs(c1, c2, contigs_dist):
     """
@@ -423,6 +425,45 @@ def add_clingo_contigs():
     return file_path
 
 
+        
+
+def add_clingo_restriction_tokens():
+    """Ajoute les distances entre les contigs à Clingo.
+    Input : Matrice des distances, Dictionnaire {contig : index}
+    Output : Règles Clingo distance("contig1", "contig2", 5)."""
+    
+    print("Création des restrictions via tokens...")
+
+    coef = 0.5
+    
+    file_path = os.path.join(folder_data_working, "programme_lp", str(nb_contigs) + "_restrictions_via_tokens.lp")
+    # if not os.path.exists(file_path):
+    contigs_dist, contigs = calculate_distance_contigs()
+    
+    with open(file_path, "w") as f:
+        for c1 in range(nb_contigs):
+            print(f"[Ajout des distances restrictions [{c1} / {nb_contigs-1}]]")
+
+            # Calcule toutes les distances de c1 à chaque c2
+            distances = []
+            for c2 in contigs_tokens.keys():
+                distance = get_distance_contigs(c1, contigs.index(c2), contigs_dist)
+                distances.append((distance, c2))
+
+            # Trie les c2 par distance croissante
+            distances.sort()
+
+            # Prend la moitié des c2 les plus proches
+            top_half = distances[:len(distances) // 2]
+
+            # Écrit la contrainte seulement pour cette moitié
+            for _, c2 in top_half:
+                f.write(f':- assigned("{contigs[c1]}", C), assigned("{c2}", C), cluster(C).\n')
+
+    print("Création des restrictions effectuées !\n")
+    
+    # ctl.load(file_path)
+    return file_path
 
         
 
@@ -553,6 +594,7 @@ def init_clingo(rules_file_path, rules_name):
     file_contigs = add_clingo_contigs()
     file_distances = add_clingo_distance()
     file_scg_taxo = add_clingo_scg_and_taxonomy()
+    file_restrictions = add_clingo_restriction_tokens()
 
     file_output = os.path.join(folder, f"output_{rules_name}.lp")
     print("Merging : ")
@@ -560,23 +602,26 @@ def init_clingo(rules_file_path, rules_name):
     print(file_contigs)
     print(file_distances)
     print(file_scg_taxo)
+    print(file_restrictions)
     print(rules_file_path)
     
     f1 = open(file_clusters, "r")
     f2 = open(file_contigs, "r")
     f3 = open(file_distances, "r")
     f4 = open(file_scg_taxo, "r")
-    f5 = open(rules_file_path, "r")  
+    f5 = open(file_restrictions, "r")  
+    f6 = open(rules_file_path, "r")  
 
     c1 = f1.read()
     c2 = f2.read()
     c3 = f3.read()
     c4 = f4.read()
     c5 = f5.read()
+    c6 = f6.read()
 
-    f6 = open(file_output, "w")
+    f7 = open(file_output, "w")
 
-    f6.write(c1 + c2 + c3 + c4 + c5)
+    f7.write(c1 + c2 + c3 + c4 + c5 + c6)
 
     f1.close()
     f2.close()
@@ -584,6 +629,7 @@ def init_clingo(rules_file_path, rules_name):
     f4.close()
     f5.close()
     f6.close()
+    f7.close()
 
 
     print("Création du fichier progromme OK pour :", rules_name)
@@ -595,10 +641,11 @@ def init_clingo(rules_file_path, rules_name):
 #LISTE DES FICHIERS RULES
 rules_files = glob.glob(os.path.join(folder, "rules", "**", "rules_*.lp"), recursive=True)
 
+
+rules_files = ["rules.lp"]
 print(f"Fichiers rules détectés :")
 for rule in rules_files:
     print(" -", rule)
-
 ####### MAIN
 
 
