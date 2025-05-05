@@ -639,7 +639,7 @@ def init_clingo(rules_file_path, rules_name):
 rules_files = glob.glob(os.path.join(folder, "rules", "**", "rules_*.lp"), recursive=True)
 
 
-rules_files = ["rules.lp"]
+#rules_files = ["rules.lp"]
 print(f"Fichiers rules détectés :")
 for rule in rules_files:
     print(" -", rule)

@@ -1,7 +1,8 @@
 rules_modif_taxo : contient les combinaisons où l'on seulement modifié les 3 contraintes de taxonomie, sans toucher au reste
 rules_sans_diamètre : contient les combinaisons où l'on a supprimé la contrainte diamètre
+rules_interdictions_CR : contient toutes les règles de rules_seuil_priorites + interdictions de plus de 2 copies et moins de 11 scg
 
 rules_modif_taxo/rules_priorites.lp : toutes les règles de taxo mais priorite 2 sur la cohérence taxo
-rules_modif_taxo/rules_sans_all.lp : suppression de toutes les règles de taxo
+rules_modif_taxo/rules_sans_all.lp : suppression de toutes les règles de taxomodif
 rules_modif_taxo/rules_sans_interdiction : suppression de l'interdiction des clusters incohérents 
 rules_modif_taxo/rules_sans_interdiction_sans_coherence : supprission de la cohérence taxo
