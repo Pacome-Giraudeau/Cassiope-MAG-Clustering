@@ -591,7 +591,7 @@ def init_clingo(rules_file_path, rules_name):
     file_contigs = add_clingo_contigs()
     file_distances = add_clingo_distance()
     file_scg_taxo = add_clingo_scg_and_taxonomy()
-    file_restrictions = add_clingo_restriction_tokens()
+    # file_restrictions = add_clingo_restriction_tokens()
 
     file_output = os.path.join(folder, f"output_{rules_name}.lp")
     print("Merging : ")
@@ -599,7 +599,7 @@ def init_clingo(rules_file_path, rules_name):
     print(file_contigs)
     print(file_distances)
     print(file_scg_taxo)
-    print(file_restrictions)
+    # print(file_restrictions)
     print(rules_file_path)
     
     f1 = open(file_clusters, "r")
@@ -607,14 +607,14 @@ def init_clingo(rules_file_path, rules_name):
     f3 = open(file_distances, "r")
     f4 = open(file_scg_taxo, "r")
     f5 = open(file_restrictions, "r")  
-    f6 = open(rules_file_path, "r")  
+    # f6 = open(rules_file_path, "r")  
 
     c1 = f1.read()
     c2 = f2.read()
     c3 = f3.read()
     c4 = f4.read()
     c5 = f5.read()
-    c6 = f6.read()
+    # c6 = f6.read()
 
     f7 = open(file_output, "w")
 
@@ -625,7 +625,7 @@ def init_clingo(rules_file_path, rules_name):
     f3.close()
     f4.close()
     f5.close()
-    f6.close()
+    # f6.close()
     f7.close()
 
 
