@@ -606,26 +606,26 @@ def init_clingo(rules_file_path, rules_name):
     f2 = open(file_contigs, "r")
     f3 = open(file_distances, "r")
     f4 = open(file_scg_taxo, "r")
-    f5 = open(file_restrictions, "r")  
-    # f6 = open(rules_file_path, "r")  
+    # f5 = open(file_restrictions, "r")  
+    f6 = open(rules_file_path, "r")  
 
     c1 = f1.read()
     c2 = f2.read()
     c3 = f3.read()
     c4 = f4.read()
-    c5 = f5.read()
-    # c6 = f6.read()
+    # c5 = f5.read()
+    c6 = f6.read()
 
     f7 = open(file_output, "w")
 
-    f7.write(c1 + c2 + c3 + c4 + c5 + c6)
+    f7.write(c1 + c2 + c3 + c4 + c6)
 
     f1.close()
     f2.close()
     f3.close()
     f4.close()
-    f5.close()
-    # f6.close()
+    # f5.close()
+    f6.close()
     f7.close()
 
 
