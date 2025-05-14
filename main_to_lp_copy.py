@@ -9,8 +9,8 @@ import glob
 
 ###### DESCRPITION DES CHEMINS VERS LES DIFF FICHIERS
 
-nb_clusters =2
-nb_contigs_to_classify=100
+nb_clusters =4
+nb_contigs_to_classify=1000
 
 folder = os.path.dirname(os.path.abspath(sys.argv[0]))
 folder_data = "data"
@@ -313,7 +313,8 @@ def calculate_distance_contigs():
     Input : contigs_coverage, contigs_kmere
     Output : Matrice des distances, Dictionnaire {contig : index}"""
 
-    ponderation = 300
+    ponderation = 21 # car il y a environ fois plus de données de couverture que de kmers
+
     # Chargement des données
     contigs_coverage, liste_coverage = read_contig_coverage()
     contigs_kmere, liste_kmere = read_contig_kmere()
