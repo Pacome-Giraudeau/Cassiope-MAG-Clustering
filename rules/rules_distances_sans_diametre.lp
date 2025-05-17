@@ -3,6 +3,12 @@
 % Chaque contig est associé à un seul cluster
 { assigned(P, C) : cluster(C) } = 1 :- contig(P).
 
+% Seuil de distance maximum autorisé
+#const seuil=260.
+
+% On ignore les distances trop grandes
+valid_distance(C1, C2, D) :- distance(C1, C2, D), seuil_distance(S), D <= S.
+
 
 distance_clusters(Cluster1, Cluster2, Dc) :- 
     assigned(C1, Cluster1), assigned(C2, Cluster2), 

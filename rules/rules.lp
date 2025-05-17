@@ -17,6 +17,12 @@ same_taxo(C1, C2, Rank) :- assigned(C1, Cluster), assigned(C2, Cluster),
 % Maximiser la cohérence taxonomique dans les clusters
 #maximize { Rank : same_taxo(C1, C2, Rank) }.
 
+% Seuil de distance maximum autorisé
+#const seuil=260.
+
+% On ignore les distances trop grandes
+valid_distance(C1, C2, D) :- distance(C1, C2, D), seuil_distance(S), D <= S.
+
 
 distance_clusters(Cluster1, Cluster2, Dc) :- 
     assigned(C1, Cluster1), assigned(C2, Cluster2), 

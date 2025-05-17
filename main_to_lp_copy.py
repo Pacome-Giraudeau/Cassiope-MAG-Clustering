@@ -9,7 +9,7 @@ import glob
 
 ###### DESCRPITION DES CHEMINS VERS LES DIFF FICHIERS
 
-nb_clusters =4
+#nb_clusters =4
 nb_contigs_to_classify=1000
 
 folder = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -514,10 +514,10 @@ def add_clingo_scg_and_taxonomy():
     
     return file_path
 
-def add_clingo_clusters():
-    """Ajoute les clusters à Clingo.
+""" def add_clingo_clusters():
+    Ajoute les clusters à Clingo.
     Input : Nombre de clusters  
-    Output : Règles Clingo cluster(1)."""
+    Output : Règles Clingo cluster(1).
 
 
     file_path = os.path.join(folder_data_working, "programme_lp", "clusters.lp")
@@ -529,7 +529,9 @@ def add_clingo_clusters():
 
     print("Création des clusters effectué !\n")
     # ctl.load(file_path)
-    return file_path
+    return file_path"""
+
+
 
 def add_clingo_rules():
     """Ajoute les clusters à Clingo.
@@ -588,29 +590,29 @@ def on_model(model, rules_name):
 
 def init_clingo(rules_file_path, rules_name):
 
-    file_clusters = add_clingo_clusters()
+    #file_clusters = add_clingo_clusters()
     file_contigs = add_clingo_contigs()
     file_distances = add_clingo_distance()
     file_scg_taxo = add_clingo_scg_and_taxonomy()
     file_restrictions = add_clingo_restriction_tokens()
 
-    file_output = os.path.join(folder, f"output_{rules_name}.lp")
+    file_output = os.path.join(folder, 'output', f"output_{rules_name}.lp")
     print("Merging : ")
-    print(file_clusters)
+    #print(file_clusters)
     print(file_contigs)
     print(file_distances)
     print(file_scg_taxo)
     print(file_restrictions)
     print(rules_file_path)
     
-    f1 = open(file_clusters, "r")
+    #f1 = open(file_clusters, "r")
     f2 = open(file_contigs, "r")
     f3 = open(file_distances, "r")
     f4 = open(file_scg_taxo, "r")
     f5 = open(file_restrictions, "r")  
     f6 = open(rules_file_path, "r")  
 
-    c1 = f1.read()
+    #c1 = f1.read()
     c2 = f2.read()
     c3 = f3.read()
     c4 = f4.read()
@@ -619,9 +621,10 @@ def init_clingo(rules_file_path, rules_name):
 
     f7 = open(file_output, "w")
 
-    f7.write(c1 + c2 + c3 + c4 + c5 + c6)
+    #supp c1 +
+    f7.write(c2 + c3 + c4 + c5 + c6)
 
-    f1.close()
+    #f1.close()
     f2.close()
     f3.close()
     f4.close()

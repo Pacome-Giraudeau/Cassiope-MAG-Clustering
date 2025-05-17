@@ -16,7 +16,7 @@ same_taxo(C1, C2, Rank) :- assigned(C1, Cluster), assigned(C2, Cluster),
 #maximize { Rank @ 2 : same_taxo(C1, C2, Rank) }.
 
 % Seuil de distance maximum autorisé
-seuil_distance(260). 
+#const seuil=260.
 
 % On ignore les distances trop grandes
 valid_distance(C1, C2, D) :- distance(C1, C2, D), seuil_distance(S), D <= S.
