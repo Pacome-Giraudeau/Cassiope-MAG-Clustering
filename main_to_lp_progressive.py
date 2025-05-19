@@ -634,6 +634,12 @@ def init_clingo(rules_file_path, rules_name):
     print("Création du fichier programme OK pour :", rules_name)
     return file_output
 
+def load_all_contigs_source():
+    source_file = os.path.join(folder_data_working, "kmer_contigs.clean.txt")
+    with open(source_file, "r") as f:
+        return [line.split("\t")[0] for line in f.readlines()[1:]]
+
+all_contigs_source = load_all_contigs_source()
 
 # MAIN
 def __main__():
@@ -644,8 +650,10 @@ def __main__():
 
     while nb_total < max_total_contigs:
         print(f"\n======== ÉTAPE {step_id} ========")
-        all_contigs = get_contigs()
-        available_contigs = [c for c in all_contigs if c not in classified_contigs]
+        
+        available_contigs = [c for c in all_contigs_source if c not in classified_contigs]
+        print(f"Contigs disponibles restants : {len(available_contigs)}")
+
         if not available_contigs:
             print("Plus de contigs disponibles.")
             break
