@@ -21,84 +21,67 @@ folder_data_working = os.path.join(folder, folder_data, folder_data_set)
 
 def copy_random_lines_with_scg(folder_data_working, nb_contigs, scg_file="contig_scg_details.tsv", output_suffix="_subset"):
     # Chemins des fichiers source
-    file1 = os.path.join(folder_data_working, f"kmer_contigs.clean.txt")
-    file2 = os.path.join(folder_data_working, f"mean_coverage_Q2Q3_contigs.txt")
+    file1 = os.path.join(folder_data_working, "kmer_contigs.clean.txt")
+    file2 = os.path.join(folder_data_working, "mean_coverage_Q2Q3_contigs.txt")
     scg_path = os.path.join(folder_data_working, scg_file)
 
-    # Fichiers de sortie
-    output1 = os.path.join(folder_data_working, f"{nb_contigs}_kmer_contigs{output_suffix}.txt")
-    output2 = os.path.join(folder_data_working, f"{nb_contigs}_mean_coverage_Q2Q3{output_suffix}.txt")
-
-    # Charger les contigs SCG (premier mot de chaque ligne)
+    # Charger les contigs SCG
     with open(scg_path, 'r') as f_scg:
         scg_contigs = {line.strip().split()[0] for line in f_scg if line.strip()}
-
     print(f"Contigs SCG trouvés : {len(scg_contigs)}")
 
-    # Lire les deux fichiers et créer des dictionnaires {contig_name: line}
     def read_file_to_dict(file_path, separator):
         with open(file_path, 'r') as f:
             lines = f.readlines()[1:]
         return {line.split(separator)[0]: line for line in lines}
 
-        
     def read_file_to_dict_coverage(file_path, separator):
         with open(file_path, 'r') as f:
             lines = f.readlines()
         return {(line.split(separator)[0], line.split(separator)[1]): line for line in lines}
 
-    contig_to_line1 = read_file_to_dict(file1, "	")
-    contig_to_line2 = read_file_to_dict_coverage(file2, "	") 
+    contig_to_line1 = read_file_to_dict(file1, "\t")
+    contig_to_line2 = read_file_to_dict_coverage(file2, "\t")
 
-    # Vérifier que les contigs sont cohérents entre les deux fichiers
     contigs_common = set(contig_to_line1.keys())
+    scg_contigs_present = list(scg_contigs & contigs_common)
 
-    # Extraire les lignes SCG
-    scg_contigs_present = scg_contigs & contigs_common
+    # ↓ Correction ici : tronquer si trop de SCG par rapport à nb_contigs
+    if len(scg_contigs_present) > nb_contigs:
+        scg_contigs_present = random.sample(scg_contigs_present, nb_contigs)
+
     scg_lines1 = [contig_to_line1[contig] for contig in scg_contigs_present]
+    scg_lines2 = [contig_to_line2[(contig+"_split_00001", echantillon)] for contig in scg_contigs_present for echantillon in [
+        "S_125SUR1QQSS11", "S_133DCM1SSUU11", "S_135SUR1MMQQ11",
+        "S_145SUR1SSUU11", "S_152SUR1SSUU11", "S_66SUR1SSUU11",
+        "S_81SUR01SSUU11"]
+    ]
 
-    scg_lines2 = [contig_to_line2[contig+"_split_00001", echantillon] for contig in scg_contigs_present for echantillon in [
-        "S_125SUR1QQSS11",
-        "S_133DCM1SSUU11",
-        "S_135SUR1MMQQ11",
-        "S_145SUR1SSUU11", 
-        "S_152SUR1SSUU11",
-        "S_66SUR1SSUU11",
-        "S_81SUR01SSUU11"
-    ]]
+    remaining_contigs = list(contigs_common - set(scg_contigs_present))
+    needed_random = nb_contigs - len(scg_contigs_present)
 
-    # Contigs restants (non-SCG)
-    remaining_contigs = list(contigs_common - scg_contigs_present)
+    if needed_random > len(remaining_contigs):
+        raise ValueError(f"Pas assez de contigs hors SCG pour en prendre {needed_random}.")
 
-    if nb_contigs < len(scg_contigs_present):
-        raise ValueError(f"Le nombre de contigs SCG ({len(scg_contigs_present)}) est supérieur à {nb_contigs}.")
+    random_selected = random.sample(remaining_contigs, needed_random)
+    final_lines1 = scg_lines1 + [contig_to_line1[contig] for contig in random_selected]
+    final_lines2 = scg_lines2 + [contig_to_line2[(contig+"_split_00001", echantillon)] for contig in random_selected for echantillon in [
+        "S_125SUR1QQSS11", "S_133DCM1SSUU11", "S_135SUR1MMQQ11",
+        "S_145SUR1SSUU11", "S_152SUR1SSUU11", "S_66SUR1SSUU11",
+        "S_81SUR01SSUU11"]
+    ]
 
-    if nb_contigs - len(scg_contigs_present) > len(remaining_contigs):
-        raise ValueError(f"Pas assez de contigs hors SCG pour sélectionner {nb_contigs - len(scg_contigs_present)} contigs.")
+    output1 = os.path.join(folder_data_working, f"{nb_contigs}_kmer_contigs{output_suffix}.txt")
+    output2 = os.path.join(folder_data_working, f"{nb_contigs}_mean_coverage_Q2Q3{output_suffix}.txt")
 
-    # Sélection aléatoire de contigs non-SCG
-    random_selected_contigs = random.sample(remaining_contigs, nb_contigs - len(scg_contigs_present))
-
-    # Construire les lignes finales
-    final_lines1 = scg_lines1 + [contig_to_line1[contig] for contig in random_selected_contigs]
-    final_lines2 = scg_lines2 + [contig_to_line2[contig+"_split_00001", echantillon] for contig in random_selected_contigs for echantillon in [
-        "S_125SUR1QQSS11",
-        "S_133DCM1SSUU11",
-        "S_135SUR1MMQQ11",
-        "S_145SUR1SSUU11", 
-        "S_152SUR1SSUU11",
-        "S_66SUR1SSUU11",
-        "S_81SUR01SSUU11"
-    ]]
-
-    # Écrire les fichiers de sortie
     with open(output1, 'w') as f_out1:
         f_out1.writelines(final_lines1)
-
     with open(output2, 'w') as f_out2:
         f_out2.writelines(final_lines2)
 
     print(f"Fichiers écrits :\n- {output1}\n- {output2}")
+    print(f"[DEBUG] Nombre final de contigs écrits : {len(scg_contigs_present) + len(random_selected)}")
+
 
 copy_random_lines_with_scg(folder_data_working=folder_data_working, nb_contigs=step_size)
 
