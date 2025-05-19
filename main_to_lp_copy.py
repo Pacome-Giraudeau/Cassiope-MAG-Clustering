@@ -648,9 +648,6 @@ for rule in rules_files:
 nb_contigs = get_nb_contigs()
     
 def __main__():
-
-    
-
     global model_count
     model_count = 0
     
