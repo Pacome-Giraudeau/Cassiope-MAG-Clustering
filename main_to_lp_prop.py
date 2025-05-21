@@ -636,24 +636,72 @@ def init_clingo(rules_file_path, rules_name):
 
 
 #LISTE DES FICHIERS RULES
-#rules_files = glob.glob(os.path.join(folder, "rules", "**", "rules_*.lp"), recursive=True)
-rules_files = glob.glob(os.path.join(folder, "rules", "test", "rules_*.lp"))
+rules_files = glob.glob(os.path.join(folder, "rules", "**", "rules_*.lp"), recursive=True)
+#rules_files = glob.glob(os.path.join(folder, "rules", "test", "rules_*.lp"))
 #rules_files = ["rules.lp"]
 print(f"Fichiers rules détectés :")
 for rule in rules_files:
     print(" -", rule)
+
+#propagateur 
+
+class DistancePropagator:
+    def __init__(self, distances, contig_indices, k=50):
+        self.distances = distances
+        self.contig_indices = contig_indices
+        self.k = k
+        self.clusters = dict()
+
+    def init(self, init):
+        self.symbols = dict()
+        for atom in init.symbolic_atoms:
+            if atom.symbol.name == "assigned" and len(atom.symbol.arguments) == 2:
+                contig = str(atom.symbol.arguments[0])
+                cluster = int(str(atom.symbol.arguments[1]))
+                self.symbols[(contig, cluster)] = init.add_watch(atom.literal)
+
+    def propagate(self, control, changes):
+        for lit in changes:
+            for (contig, cluster), watched_lit in self.symbols.items():
+                if lit == watched_lit:
+                    self.clusters[contig] = cluster
+
+        # Vérifie les contraintes de proximité entre contigs
+        for c1 in self.clusters:
+            idx1 = self.contig_indices[c1]
+            dist_list = [
+                (self.distances[idx1][self.contig_indices[c2]], c2)
+                for c2 in self.clusters if c2 != c1
+            ]
+            dist_list.sort()
+            for d, c2 in dist_list[self.k:]:  # ceux qui ne sont PAS parmi les k plus proches
+                if self.clusters[c1] == self.clusters[c2]:
+                    print(f"Conflit détecté : {c1} et {c2} dans le même cluster mais distance > top {self.k}")
+                    return control.add_nogood([
+                        self.symbols[(c1, self.clusters[c1])],
+                        self.symbols[(c2, self.clusters[c2])]
+                    ])
+                
+
+
+
 ####### MAIN
-
-
+ 
 nb_contigs = get_nb_contigs()
     
 def __main__():
+
+    
+
     global model_count
     model_count = 0
     
     read_contig_kmere()
     read_contig_scg()
-    
+    contigs_dist_matrix, contigs_list = calculate_distance_contigs()
+    contig_indices = {contig: idx for idx, contig in enumerate(contigs_list)}
+    prop = DistancePropagator(contigs_dist_matrix, contig_indices, k=50)
+        
     # Ground and solve
     print("\nFin de la phase d'initialisation\n")
     for rules_path in rules_files:
@@ -661,7 +709,8 @@ def __main__():
         
         rules_name = os.path.splitext(os.path.basename(rules_path))[0] 
         # Create a Clingo control object
-        ctl = clingo.Control(["0", "--opt-mode=optN", "--parallel-mode=8"])
+        ctl = clingo.Control(["0", "--opt-mode=optN", "--parallel-mode=36"])
+        ctl.register_propagator(prop)
 
         print(f"\n==========\nTraitement pour {rules_name}\n==========\n")
 
@@ -674,8 +723,7 @@ def __main__():
         ctl.ground([("base", [])]) 
         print("Grounding de clingo terminée !")
         print("Résolution...")
-        result = ctl.solve(on_model=lambda model: on_model(model, rules_name)) 
-        print(" Les résultats sont : ", result)
+        ctl.solve(on_model=lambda model: on_model(model, rules_name))  
         print("Résolution de clingo terminée !")
     
     return

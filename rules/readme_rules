@@ -6,3 +6,5 @@ rules_modif_taxo/rules_priorites.lp : toutes les règles de taxo mais priorite 2
 rules_modif_taxo/rules_sans_all.lp : suppression de toutes les règles de taxomodif
 rules_modif_taxo/rules_sans_interdiction : suppression de l'interdiction des clusters incohérents 
 rules_modif_taxo/rules_sans_interdiction_sans_coherence : supprission de la cohérence taxo
+
+dossier test : temporaire, contient les fichiers rules que je voulais tester
