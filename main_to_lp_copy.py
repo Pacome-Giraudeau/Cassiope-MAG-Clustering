@@ -665,7 +665,7 @@ def __main__():
         
         rules_name = os.path.splitext(os.path.basename(rules_path))[0] 
         # Create a Clingo control object
-        ctl = clingo.Control(["0", "--opt-mode=optN", "--parallel-mode=36"])
+        ctl = clingo.Control(["0", "--opt-mode=optN", "--parallel-mode=8"])
 
         print(f"\n==========\nTraitement pour {rules_name}\n==========\n")
 
@@ -678,7 +678,8 @@ def __main__():
         ctl.ground([("base", [])]) 
         print("Grounding de clingo terminée !")
         print("Résolution...")
-        ctl.solve(on_model=lambda model: on_model(model, rules_name))  
+        result = ctl.solve(on_model=lambda model: on_model(model, rules_name)) 
+        print(" Les résultats sont : ", result)
         print("Résolution de clingo terminée !")
     
     return
