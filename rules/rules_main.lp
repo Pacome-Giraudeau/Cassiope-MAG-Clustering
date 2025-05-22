@@ -8,14 +8,28 @@
 same_taxo(C1, C2, Rank) :- assigned(C1, Cluster), assigned(C2, Cluster), 
                             taxo(C1, Rank, T), taxo(C2, Rank, T), C1 != C2.
 
-% Interdiction des clusters incohérents : si deux contigs ont des taxonomies différentes aux niveaux 1, 2 ou 3,
-% ne peuvent pas être dans le même cluster
-:- assigned(C1, Cluster), assigned(C2, Cluster), 
-    taxo(C1, Rank, T1), taxo(C2, Rank, T2), 
-    C1 != C2, T1 != T2, Rank <= 3.
-
 % Maximiser la cohérence taxonomique dans les clusters
 #maximize { Rank @ 2 : same_taxo(C1, C2, Rank) }.
+
+% Chaque contig est associé à un seul cluster
+{ assigned(P, C) : cluster(C) } = 1 :- contig(P).
+
+% Déduire les clusters à partir des attributions
+in_cluster(P, C) :- assigned(P, C).
+
+% Récupérer les rangs par cluster
+cluster_rank(C, R) :- in_cluster(P, C), rank(P, R).
+
+% On identifie les min et max correctement avec des variables sûres
+not_min_rank(C, R) :- cluster_rank(C, R), cluster_rank(C, R2), R2 < R.
+min_rank(C, R) :- cluster_rank(C, R), not not_min_rank(C, R).
+
+not_max_rank(C, R) :- cluster_rank(C, R), cluster_rank(C, R2), R2 > R.
+max_rank(C, R) :- cluster_rank(C, R), not not_max_rank(C, R).
+
+% Contrainte : tous les rangs entre min et max doivent exister
+:- min_rank(C, Min), max_rank(C, Max), R = Min..Max, not cluster_rank(C, R).
+
 
 
 distance_clusters(Cluster1, Cluster2, Dc) :- 
@@ -66,14 +80,6 @@ gene_frequency(G, B, Freq) :- assigned(_, B), scg(_, G), cluster(B),
 #minimize { Freq - 1, G, B : gene_frequency(G, B, Freq), Freq > 1 }.
 
 
-
-% --- Ajout du calcul du diamètre maximum d'un cluster ---
-diam(B, D) :- assigned(C1, B), assigned(C2, B), C1 < C2, cluster(B), distance(C1, C2, D).
-diam(B, D-1) :- diam(B, D), D > 0.
-maxDiameter(B, D) :- diam(B, D), not diam(B, D+1).
-
-
-#minimize { D : maxDiameter(B, D) }.
 
 
 #show assigned/2.

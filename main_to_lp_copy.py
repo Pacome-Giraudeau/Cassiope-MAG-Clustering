@@ -6,11 +6,13 @@ from scipy.spatial.distance import euclidean
 import subprocess
 import random
 import glob
+from Bio import Phylo
+from io import StringIO
 
 ###### DESCRPITION DES CHEMINS VERS LES DIFF FICHIERS
 
-nb_clusters =10
-nb_contigs_to_classify=1000
+nb_clusters =4
+nb_contigs_to_classify=200
 
 folder = os.path.dirname(os.path.abspath(sys.argv[0]))
 folder_data = "data"
@@ -313,7 +315,7 @@ def calculate_distance_contigs():
     Input : contigs_coverage, contigs_kmere
     Output : Matrice des distances, Dictionnaire {contig : index}"""
 
-    ponderation = 1
+    ponderation = 100
     # Chargement des données
     contigs_coverage, liste_coverage = read_contig_coverage()
     contigs_kmere, liste_kmere = read_contig_kmere()
@@ -387,6 +389,50 @@ def get_contigs():
                     liste_contig.append(contig_name)  # Ajout du contig à la liste
     return liste_contig
 
+
+# Parcours post-ordre de droite à gauche
+def right_to_left_postorder(clade, ordered_contigs):
+    if clade.is_terminal():
+        ordered_contigs.append(clade.name)
+    else:
+        children = clade.clades
+        if len(children) == 2:
+            right_to_left_postorder(children[1], ordered_contigs)
+            right_to_left_postorder(children[0], ordered_contigs)
+        elif len(children) == 1:
+            right_to_left_postorder(children[0], ordered_contigs)
+
+
+def create_contigs_ranks():
+    """Crée un fichier contig_ranks.tsv contenant les rangs des contigs à partir d'un arbre phylogénétique au format Newick.
+    Input : Fichier ordre_item.txt (arbre phylogénétique)
+    Output : Fichier contig_ranks.tsv (contig, rang)"""
+    
+    # Lecture du fichier ordre_item.txt
+    with open(os.path.join(folder, "ordre_items.txt"), "r") as file:
+
+        newick_str = file.read().strip()  # on retire les éventuels sauts de ligne inutiles
+
+    # Parser l’arbre à partir de la chaîne Newick
+    handle = StringIO(newick_str)
+    tree = Phylo.read(handle, "newick")
+
+    # Liste ordonnée des feuilles (contigs)
+    ordered_contigs = []
+
+    # Lancer le parcours
+    right_to_left_postorder(tree.root, ordered_contigs)
+
+    # Attribuer un rang (droite = rang 0)
+    ranks = {contig: rank for rank, contig in enumerate(reversed(ordered_contigs))}
+
+    # Sauvegarde dans un fichier tsv
+    with open("ordre_contig.txt", "w") as f:
+        for contig, rank in ranks.items():
+            f.write(f"{contig}\t{rank}\n")
+
+    print("Rangs des contigs enregistrés dans ordre_contig.txt.")
+
     ##################  
     ##################  
 ######### CLINGO ######### 
@@ -440,6 +486,40 @@ def add_clingo_distance():
     
     # ctl.load(file_path)
     return file_path
+
+
+def add_clingo_ranks():
+    """
+    Ajoute les rangs des contigs à Clingo.
+    Input : Fichier ordre_items.txt (tabulé : contig<TAB>rank)
+    Output : Fichier LP contenant des règles Clingo de type rank("contig1", 5).
+    """
+    print("Création des rangs des contigs pour Clingo...")
+
+    input_path = os.path.join(folder, "ordre_contig.txt")
+    output_path = os.path.join(folder_data_working, "programme_lp", f"{nb_contigs}_ranks.lp")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    if not os.path.exists(output_path):
+        with open(input_path, "r") as f_in, open(output_path, "w") as f_out:
+            for line in f_in:
+                line = line.strip()
+                if not line or "\t" not in line:
+                    continue  # ignore lignes vides ou malformées
+                try:
+                    name, rank = line.split("\t")
+                    name = name.strip()
+                    rank = int(rank.strip())
+                    f_out.write(f'rank("{name}", {rank}).\n')
+                except ValueError:
+                    print(f"Ligne ignorée (mal formée) : {line}")
+
+        print("Fichier de rangs Clingo créé :", output_path)
+    else:
+        print("Fichier de rangs Clingo déjà existant :", output_path)
+
+    return output_path
+
 
 
 def add_clingo_scg_and_taxonomy():
@@ -545,6 +625,7 @@ def init_clingo(rules_file_path, rules_name):
     file_contigs = add_clingo_contigs()
     file_distances = add_clingo_distance()
     file_scg_taxo = add_clingo_scg_and_taxonomy()
+    file_ranks = add_clingo_ranks()  # retourne maintenant un fichier .lp
 
     file_output = os.path.join(folder, f"output_{rules_name}.lp")
     print("Merging : ")
@@ -559,16 +640,18 @@ def init_clingo(rules_file_path, rules_name):
     f3 = open(file_distances, "r")
     f4 = open(file_scg_taxo, "r")
     f5 = open(rules_file_path, "r")  
+    f6 = open(file_ranks, "r")
 
     c1 = f1.read()
     c2 = f2.read()
     c3 = f3.read()
     c4 = f4.read()
     c5 = f5.read()
+    c6 = f6.read()
 
-    f6 = open(file_output, "w")
+    f7 = open(file_output, "w")
 
-    f6.write(c1 + c2 + c3 + c4 + c5)
+    f7.write(c1 + c2 + c3 + c4 + c5 + c6)
 
     f1.close()
     f2.close()
@@ -576,6 +659,7 @@ def init_clingo(rules_file_path, rules_name):
     f4.close()
     f5.close()
     f6.close()
+    f7.close()
 
 
     print("Création du fichier progromme OK pour :", rules_name)
@@ -602,6 +686,7 @@ def __main__():
 
     global model_count
     model_count = 0
+
     
     read_contig_kmere()
     read_contig_scg()
@@ -613,7 +698,7 @@ def __main__():
         
         rules_name = os.path.splitext(os.path.basename(rules_path))[0] 
         # Create a Clingo control object
-        ctl = clingo.Control(["0", "--opt-mode=optN", "--parallel-mode=36"])
+        ctl = clingo.Control(["0", "--opt-mode=optN", "--parallel-mode=8"])
 
         print(f"\n==========\nTraitement pour {rules_name}\n==========\n")
 
@@ -626,7 +711,8 @@ def __main__():
         ctl.ground([("base", [])]) 
         print("Grounding de clingo terminée !")
         print("Résolution...")
-        ctl.solve(on_model=lambda model: on_model(model, rules_name))  
+        result=ctl.solve(on_model=lambda model: on_model(model, rules_name))
+        print("Resultat", result) 
         print("Résolution de clingo terminée !")
     
     return
