@@ -391,47 +391,48 @@ def get_contigs():
 
 
 # Parcours post-ordre de droite à gauche
-def right_to_left_postorder(clade, ordered_contigs):
+def right_to_left_postorder(clade, ordered_contigs, liste_contigs):
+    """Parcourt l’arbre en post-ordre de droite à gauche et ajoute les noms de feuilles valides."""
     if clade.is_terminal():
-        ordered_contigs.append(clade.name)
+        contig_name = clade.name
+        cleaned_name = contig_name.split('_split_')[0] if '_split_' in contig_name else contig_name
+        if cleaned_name in liste_contigs:
+            ordered_contigs.append(cleaned_name)
     else:
         children = clade.clades
         if len(children) == 2:
-            right_to_left_postorder(children[1], ordered_contigs)
-            right_to_left_postorder(children[0], ordered_contigs)
+            right_to_left_postorder(children[1], ordered_contigs, liste_contigs)
+            right_to_left_postorder(children[0], ordered_contigs, liste_contigs)
         elif len(children) == 1:
-            right_to_left_postorder(children[0], ordered_contigs)
+            right_to_left_postorder(children[0], ordered_contigs, liste_contigs)
 
 
 def create_contigs_ranks():
     """Crée un fichier contig_ranks.tsv contenant les rangs des contigs à partir d'un arbre phylogénétique au format Newick.
-    Input : Fichier ordre_item.txt (arbre phylogénétique)
-    Output : Fichier contig_ranks.tsv (contig, rang)"""
-    
-    # Lecture du fichier ordre_item.txt
+    Input : Fichier ordre_items.txt (arbre phylogénétique)
+    Output : Fichier ordre_contig.txt (contig, rang)"""
+
+    liste_contigs = get_contigs()  # liste attendue des contigs
+    print("liste_contigs", liste_contigs)
+
+    # Lecture de l’arbre Newick
     with open(os.path.join(folder, "ordre_items.txt"), "r") as file:
+        newick_str = file.read().strip()
 
-        newick_str = file.read().strip()  # on retire les éventuels sauts de ligne inutiles
+    tree = Phylo.read(StringIO(newick_str), "newick")
 
-    # Parser l’arbre à partir de la chaîne Newick
-    handle = StringIO(newick_str)
-    tree = Phylo.read(handle, "newick")
-
-    # Liste ordonnée des feuilles (contigs)
+    # Récupération des contigs ordonnés valides
     ordered_contigs = []
+    right_to_left_postorder(tree.root, ordered_contigs, liste_contigs)
 
-    # Lancer le parcours
-    right_to_left_postorder(tree.root, ordered_contigs)
-
-    # Attribuer un rang (droite = rang 0)
+    # Attribuer les rangs (droite = rang 0)
     ranks = {contig: rank for rank, contig in enumerate(reversed(ordered_contigs))}
 
-    # Sauvegarde dans un fichier tsv
-    with open("ordre_contig.txt", "w") as f:
+    # Sauvegarde dans un fichier
+    chemin = os.path.join(folder, folder_data, folder_data_set, "ordre_contig.txt")
+    with open(chemin, "w") as f:
         for contig, rank in ranks.items():
             f.write(f"{contig}\t{rank}\n")
-
-    print("Rangs des contigs enregistrés dans ordre_contig.txt.")
 
     ##################  
     ##################  
@@ -445,7 +446,7 @@ def add_clingo_contigs():
     Input : Liste des contigs
     Output : Règles Clingo contig("contig1")."""
 
-    print("Cration des contigs...")
+    print("Création des contigs...")
     
     file_path = os.path.join(folder_data_working, "programme_lp", str(nb_contigs) + "_contigs.lp")
     if not os.path.exists(file_path):
@@ -491,12 +492,14 @@ def add_clingo_distance():
 def add_clingo_ranks():
     """
     Ajoute les rangs des contigs à Clingo.
-    Input : Fichier ordre_items.txt (tabulé : contig<TAB>rank)
+    Input : Fichier ordre_contig.txt (tabulé : contig<TAB>rank)
     Output : Fichier LP contenant des règles Clingo de type rank("contig1", 5).
     """
     print("Création des rangs des contigs pour Clingo...")
 
-    input_path = os.path.join(folder, "ordre_contig.txt")
+    create_contigs_ranks()
+
+    input_path = os.path.join(folder, folder_data, folder_data_set, "ordre_contig.txt")
     output_path = os.path.join(folder_data_working, "programme_lp", f"{nb_contigs}_ranks.lp")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
@@ -598,8 +601,8 @@ def on_model(model, rules_name):
     print(f"Nombre de clusters : {cluster_count}")
     print(f"Nombre de contigs total : {count_atoms}")
     print(f"Nombre de contigs assignés : {count_assigned_atoms}")
-    print("\nRésultat du clustering :")
-    print("\n".join(assigned_atoms) if assigned_atoms else "Aucun contig assigné")
+    # print("\nRésultat du clustering :")
+    # print("\n".join(assigned_atoms) if assigned_atoms else "Aucun contig assigné")
 
 
     print("\nFin de l'affichage des clusters\n")
@@ -681,8 +684,6 @@ for rule in rules_files:
 nb_contigs = get_nb_contigs()
     
 def __main__():
-
-    
 
     global model_count
     model_count = 0
